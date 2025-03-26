@@ -1,0 +1,9 @@
+# generate final target genotype dataset
+plink2 \
+    --bfile /path/to/genotype/data/prefix \
+    --make-bed \
+    --keep prefix.QC.rel.id \
+    --out prefix.QC \
+    --extract prefix.QC.snplist 
+
+# note this will save the QC'd genotype files to your directory - once you are finished with PRS analyses they should be DELETED
