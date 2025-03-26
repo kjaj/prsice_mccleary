@@ -1,0 +1,10 @@
+# relatedness check
+
+ml PLINK/1.9b_6.21-x86_64
+
+plink \
+    --bfile /path/to/genotype/data/prefix \
+    --extract prefix.QC.prune.in \
+    --keep prefix.QC.valid \
+    --rel-cutoff 0.125 \
+    --out prefix.QC
