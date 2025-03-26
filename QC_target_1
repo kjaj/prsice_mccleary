@@ -1,0 +1,33 @@
+# remove duplicates 
+# here the example is as if the variant IDs are in column number 2 of the bim file (which they should be anyway)
+
+cat /path/to/genotype/data/prefix.bim | awk '{seen[$2]++; if(seen[$2]==1){ print $2}}' > prefix.toKeep
+
+# an alt way that's slower so won't use, but it's an option
+# awk -F ' ' '{print $2}' /path/to/genotype/data/prefix.bim | sort | uniq -d > prefix.dups
+
+# filter on MAF, HWE, genotype missingness, sample missingness, remove list of duplicates, write a fam file and SNPlist
+plink2 --bfile /path/to/genotype/data/prefix \
+    --maf 0.01 \
+    --hwe 1e-6 \
+    --geno 0.01 \
+    --mind 0.01 \
+    --extract prefix.toKeep \
+    --write-snplist \
+    --make-just-fam \
+    --out prefix.QC
+
+# extract participants and SNPs meeting previous QC, LD prune
+plink2 --bfile /path/to/genotype/data/prefix \
+    --keep prefix.QC.fam \
+    --extract prefix.QC.snplist \
+    --indep-pairwise 200 50 0.25 \
+    --out prefix.QC
+
+# extract participants and SNPs meeting previous QC, calculate heterozygosity
+plink2 \
+    --bfile /path/to/genotype/data/prefix \
+    --extract prefix.QC.prune.in \
+    --keep prefix.QC.fam \
+    --het \
+    --out prefix.QC
