@@ -1,0 +1,11 @@
+# heterozygosity QC in R
+require(data.table)
+# Read in heterozygosity file from previous QC step
+dat <- fread("prefix.QC.het")
+#rename column so it doesnt have a hash in it
+colnames(dat)[grep("#",colnames(dat))]<-"FID"
+# Get samples with F coefficient within 3 SD of the population mean
+valid <- dat[F<=mean(F)+3*sd(F) & F>=mean(F)-3*sd(F)] 
+# print FID and IID for valid samples
+fwrite(valid[,c("FID","IID")], "prefix.valid.sample", sep="\t") 
+q()
