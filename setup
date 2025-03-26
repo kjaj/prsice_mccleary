@@ -1,0 +1,18 @@
+cd /path/to/your/working/directory
+
+# reserve memory
+srun --pty --mem=30g --time=06:00:00 -p devel bash
+
+# you can do this inside a conda environment that has R essentials (like the one recommended for the graphics interface would work fine), or just on command line 
+# if using conda environment
+ml miniconda
+conda activate r_env_ood # or whatever you called the conda env
+
+# if not
+ml R
+
+# load PLINK 
+
+# see here for further documentation on what plinks different flags (any part of a command thats like --word) do https://www.cog-genomics.org/plink/2.0/
+# the default plink module on mccleary is PLINK 2.0 (so all commands have to start with 'plink2')
+ml PLINK
