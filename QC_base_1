@@ -1,0 +1,34 @@
+# cleaning GWAS sumstats data in R - PRSice also needs an unzipped copy (you can delete this copy after analyses to save space)
+# see https://choishingwan.github.io/PRS-Tutorial/base/
+
+# note: base and target data need to be on the SAME GENOME BUILD. This needs to be checked with every PRS analysis
+
+# note 2: sample overlap: there should be no overlapping people (people who are in the base GWAS and who are also in the target dataset) 
+
+require(data.table)
+# note you may need to install package R.utils to read .gz files, alternatively you can unzip the sumstats folder and save that unzipped copy in your directory, then read into R
+# note also: this example is using Multisite Chronic Pain GWAS sumstats
+
+dat<-fread("/path/to/chronic_pain-bgen.stats.gz")
+# renaming p value column to be more standard
+dat$P<-dat$P_BOLT_LMM_INF
+# removing non-essential & potentially confusing (to PRSice) columns
+dat$P_BOLT_LMM_INF<-NULL
+dat$P_BOLT_LMM<-NULL
+dat$P_LINREG<-NULL
+# renaming allele columns (bolt-lmm names them a little differently to most gwas software
+dat$A1<-dat$ALLELE1
+dat$A2<-dat$ALLELE0
+# making an MAF column
+# if A1 frequency is more than 0.5, that is not minor allele frequency
+dat$MAF<-dat$A1FREQ
+dat$MAF[which(dat$A1FREQ>0.5)]<-1-dat$A1FREQ[which(dat$A1FREQ>0.5)]
+
+dat$ALLELE1<-NULL
+dat$ALLELE0<-NULL
+
+# filter by info and MAF
+
+dat<-dat[which(dat$MAF > 0.01 & dat$INFO > 0.8),]
+
+write.table(dat, "prsice_base1", row.names=F, col.names=T, quote=F, sep="\t")
