@@ -1,0 +1,22 @@
+# removing duplicate SNPs from GWAS sumstats
+# this script only prints lines where the SNP ID is being seen for the first time
+# in this example column 1 is the variant ID column - this might not be the case for other sumstats files
+
+cat prsice_base1 | awk '{seen[$1]++; if(seen[$1]==1){ print}}' > prsice_base2
+
+
+# removing ambiguous SNPs
+# more info on what these are https://mr-dictionary.mrcieu.ac.uk/term/palindrome/#:~:text=A%20palindromic%20SNP%20(also%20known,in%20the%20double%20helix%20structure. 
+# the 13th and 14th column in the MCP sumstats dataset is A1 and A2 respectively, so these are the ones we need to check
+# this column will change if we were looking at a different GWAS dataset ! so make sure to check in your own GWAS sumstats which columns are A1 and A2
+
+cat prsice_base2 | awk '!( ($13=="A" && $14=="T") || \
+        ($13=="T" && $14=="A") || \
+        ($13=="G" && $14=="C") || \
+        ($13=="C" && $14=="G")) {print}' > prsice_base3
+
+cat prsice_base3 > prsice_base_gwas
+rm prsice_base1
+rm prsice_base2
+rm prsice_base3
+
