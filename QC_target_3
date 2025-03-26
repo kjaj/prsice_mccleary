@@ -1,0 +1,19 @@
+# sex check 
+# PLINK part
+
+ml PLINK/1.9b_6.21-x86_64
+
+plink \
+    --bfile /path/to/genotype/data/prefix \
+    --extract prefix.QC.prune.in \
+    --keep prefix.valid.sample \
+    --check-sex \
+    --out prefix.QC
+
+# R part
+library(data.table)
+# Read in file
+valid <- fread("prefix.valid.sample")
+dat <- fread("prefix.QC.sexcheck")[FID%in%valid$FID]
+fwrite(dat[STATUS=="OK",c("FID","IID")], "prefix.QC.valid", sep="\t") 
+q()
