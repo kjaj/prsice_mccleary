@@ -1,0 +1,34 @@
+
+cd /your/working/directory
+
+Rscript /path/to/software/PRSice/PRSice.R \
+--prsice /path/to/software/PRSice/PRSice_linux \
+    --base prsice_base_gwas \
+    --target prefix.QC \
+    --thread 1 \
+    --stat BETA \
+    --beta \
+    --binary-target F \
+    --no-regress \
+    --no-full \
+    --bar-levels 0.0001 \
+    --fastscore \
+    --out MCP_PRS_0.0001
+
+# note the --no-regress and --fastscore flags, which will let us use PRSice without having to measure multisite chronic pain in the target data (girgenti dataset), and i have set the PRS SNP inclusion threshold to be p < 0.0001. 
+# we also need to make sure each time that we are telling PRSice whether our trait is binary or continuous, and what the association statistic is (here i told PRSice the trait is NOT binary, and that the assoc stat is BETA)
+
+# it might be good to run this 2-5 times, changing the p value threshold each time - we can read and combine the output of doing that in R using script like below, changing the p value and the file name each time 
+
+trait<-"MCP" # change depending on trait PRS you are interested in checking
+f1<-list.files()[grep("all.score",list.files())]
+f1<-f1[grep(trait,f1)]
+rm(i)
+require(data.table)
+require(dplyr)
+dat_list<-list()
+for(i in 1:length(f1)){
+dat_list[[i]]<-fread(f1[i])
+}
+dat_all<-Reduce(full_join,dat_list)
+head(dat_all)
